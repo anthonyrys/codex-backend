@@ -1,4 +1,4 @@
-name: tests
+name: builds
 on:
   push:
     branches:
@@ -6,7 +6,7 @@ on:
       - main-preview
 
 jobs:
-  run_local_tests:
+  build_local:
     runs-on: ubuntu-latest
 
     services:
@@ -26,7 +26,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup JDK 17
+      - name: Setup JDK
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -41,9 +41,16 @@ jobs:
       - name: Cache packages
         uses: actions/cache@v4
         with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
-      - name: Run tests
-        run: mvn -B test --file pom.xml
+      - name: Build
+        run: mvn clean package
+
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: codex-backend
+          path: target/*.jar
