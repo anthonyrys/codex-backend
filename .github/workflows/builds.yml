@@ -48,9 +48,3 @@ jobs:
 
       - name: Build
         run: mvn clean package
-
-      - name: Upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: codex-backend
-          path: target/*.jar
